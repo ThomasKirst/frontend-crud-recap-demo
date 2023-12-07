@@ -27,6 +27,11 @@ const serviceSchema = new Schema(
       type: offererSchema,
       required: true,
     },
+    isFavorite: {
+      type: Boolean,
+      default: false,
+      required: false
+    },
   },
   { timestamps: true }
 );

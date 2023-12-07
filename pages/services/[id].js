@@ -8,6 +8,7 @@ import Avatar from "@/components/Layout/Avatar";
 import Card from "@/components/Layout/Card";
 import Loader from "@/components/Layout/Loader";
 import ActionButton from "@/components/Layout/ActionButton";
+import FavoriteButton from "@/components/Layout/FavoriteButton";
 import ReactMarkdown from "react-markdown";
 
 const StyledMarkdown = styled(ReactMarkdown)`
@@ -29,7 +30,7 @@ const StyledMarkdown = styled(ReactMarkdown)`
 export default function Service() {
   const router = useRouter();
   const { id } = router.query;
-  const { data: service, isLoading } = useSWR(
+  const { data: service, isLoading, mutate } = useSWR(
     id ? `/api/services/${id}` : null
   );
 
@@ -37,7 +38,19 @@ export default function Service() {
     return <Loader />;
   }
 
-  const { name, price, offerer, description, image } = service;
+  const { name, price, offerer, description, image, isFavorite } = service;
+
+  async function handleFavoriteClick(id) {
+    const response = await fetch(`/api/services/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...service, isFavorite: !isFavorite }),
+    });
+
+    if (response.ok) {
+      mutate(`/api/services/${id}`);
+    }
+  }
 
   return (
     <Column width="700px" padding="1rem">
@@ -51,14 +64,18 @@ export default function Service() {
           <Flex alignItems="center" gap="0.5rem" pushLast>
             Offered by
             <Avatar
-              alt={offerer.name}
+              alt={offerer?.name || "J"}
               src={`https://dummyimage.com/75x75/48cae4/fff&text=${
-                (offerer.name || "J")[0]
+                (offerer?.name || "J")[0]
               }`}
               size={40}
             />
-            <strong>{offerer.name}</strong>
+            <strong>{offerer?.name}</strong>
             <Flex>
+              <FavoriteButton
+                isFavorite={service?.isFavorite}
+                onClick={() => handleFavoriteClick(service._id)}
+              />
               <ActionButton>Book Now!</ActionButton>
             </Flex>
           </Flex>
