@@ -48,7 +48,7 @@ export default function Service() {
     });
 
     if (response.ok) {
-      mutate(`/api/services/${id}`);
+      mutate();
     }
   }
 
